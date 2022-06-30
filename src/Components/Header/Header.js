@@ -1,16 +1,17 @@
-import { NavLink } from "react-router-dom";
+import { useContext } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import AuthContext from "../../Store/Auth/Auth.context";
 
 const Header = () => {
+  const auth = useContext(AuthContext);
+  const navigate = useNavigate();
   return (
     <header>
       <nav className="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
         <div className="container">
-          <NavLink
-                className="navbar-brand"
-                to={`/`}
-            >
-                Ecomm
-            </NavLink>
+          <NavLink className="navbar-brand" to={`/`}>
+            Ecomm
+          </NavLink>
           <button
             className="navbar-toggler"
             type="button"
@@ -68,27 +69,53 @@ const Header = () => {
             </ul>
             <div className="d-flex">
               <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                <li className="nav-item">
-                  <NavLink
-                    className={({ isActive }) =>
-                      isActive ? "nav-link active" : "nav-link"
-                    }
-                    to={`/login`}
-                  >
-                    Login
-                  </NavLink>
-                </li>
-                <li className="nav-item">
-                  <NavLink
-                    className={({ isActive }) =>
-                      isActive ? "nav-link active" : "nav-link"
-                    }
-                    to={`/signup`}
-                  >
-                    SignUp
-                  </NavLink>
-                  
-                </li>
+                {!auth.isLoggedIn && (
+                  <li className="nav-item">
+                    <NavLink
+                      className={({ isActive }) =>
+                        isActive ? "nav-link active" : "nav-link"
+                      }
+                      to={`/login`}
+                    >
+                      Login
+                    </NavLink>
+                  </li>
+                )}
+
+                {!auth.isLoggedIn && (
+                  <li className="nav-item">
+                    <NavLink
+                      className={({ isActive }) =>
+                        isActive ? "nav-link active" : "nav-link"
+                      }
+                      to={`/signup`}
+                    >
+                      SignUp
+                    </NavLink>
+                  </li>
+                )}
+                {auth.isLoggedIn && (
+                  <li className="nav-item">
+                    <NavLink
+                      className={({ isActive }) =>
+                        isActive ? "nav-link active" : "nav-link"
+                      }
+                      to={`/profile`}
+                    >
+                      User
+                    </NavLink>
+                  </li>
+                )}
+                {auth.isLoggedIn && (
+                  <li className="nav-item">
+                    <button className='btn btn-link nav-link' onClick={()=>{
+                      auth.loggout();
+                      navigate("/");
+
+                    }}>Logout</button>
+                    
+                  </li>
+                )}
               </ul>
             </div>
           </div>
