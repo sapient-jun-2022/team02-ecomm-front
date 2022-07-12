@@ -1,10 +1,29 @@
 import { useContext } from "react";
+import { useSelector } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
 import AuthContext from "../../Store/Auth/Auth.context";
 
 const Header = () => {
   const auth = useContext(AuthContext);
+  const cart = useSelector((state)=>state.cart);
   const navigate = useNavigate();
+  let cartHTML = '';
+  if(cart?.products.length){
+    const totalProduct = cart.products.reduce((total,current)=>(total+current.quantity),0);
+    cartHTML = <li className="nav-item">
+    <NavLink
+      to={`/cart`}
+      className={`nav-link position-relative`}
+    >
+      <i className="bi bi-cart"></i>
+      <span className="position-absolute top-5 start-100 translate-middle badge rounded-pill bg-danger">
+        {totalProduct}
+        <span className="visually-hidden">unread messages</span>
+      </span>
+    </NavLink>
+  </li>;
+
+  }
   return (
     <header>
       <nav className="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
@@ -108,14 +127,19 @@ const Header = () => {
                 )}
                 {auth.isLoggedIn && (
                   <li className="nav-item">
-                    <button className='btn btn-link nav-link' onClick={()=>{
-                      auth.loggout();
-                      navigate("/");
-
-                    }}>Logout</button>
-                    
+                    <button
+                      className="btn btn-link nav-link"
+                      onClick={() => {
+                        auth.loggout();
+                        navigate("/");
+                      }}
+                    >
+                      Logout
+                    </button>
                   </li>
                 )}
+
+                {cartHTML}
               </ul>
             </div>
           </div>

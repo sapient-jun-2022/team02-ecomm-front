@@ -1,4 +1,7 @@
-import {  useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { ReteriveCart } from "../Actions/cartActions";
+import { CLEAR_CART } from "../Config/cartConfig";
 import AuthContext from "./Auth.context";
 
 function setCookie(cname, cvalue, exdays) {
@@ -26,7 +29,40 @@ function getCookie(cname) {
 const AuthProvider = (props) => {
   const [token, setToken] = useState(getCookie("token"));
   const [user, setUser] = useState(null);
+  const dispatch = useDispatch();
   const isLoggedIn = !!token;
+  
+
+  
+
+  useEffect(()=>{
+    setCookie("token", token, 2);
+    const fetchCart = (_token) =>dispatch(ReteriveCart(_token));
+    const fetchUser = async(_token)=>{
+      fetch(`http://localhost:8000/user/authorize`,{
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${_token}`
+        },
+      }).then((res)=>res.json()).then((data)=>{
+        if(data.status){
+          setUser(data.user);
+        }
+      });
+    }
+    
+    if(token){
+      fetchCart(token);
+      fetchUser(token);
+      
+    }
+    
+  },[token,dispatch]);
+
+
+
+  
 
   const loginHandler = async (email, password) => {
     if (email && password) {
@@ -42,11 +78,9 @@ const AuthProvider = (props) => {
       });
       const data = await response.json();
       if (data.token !== undefined) {
-        setCookie("token", data.token, 2);
         setToken(data.token);
-        if(data.user){
-            setUser(data.user);
-
+        if (data.user) {
+          setUser(data.user);
         }
         return true;
       } else {
@@ -56,9 +90,10 @@ const AuthProvider = (props) => {
   };
   const logoutHandler = () => {
     setToken("");
-    setCookie("token", "", 2);
+    dispatch({type:CLEAR_CART});
   };
 
+  
   return (
     <AuthContext.Provider
       value={{
@@ -66,6 +101,7 @@ const AuthProvider = (props) => {
         login: loginHandler,
         loggout: logoutHandler,
         user: user,
+        token
       }}
     >
       {props.children}

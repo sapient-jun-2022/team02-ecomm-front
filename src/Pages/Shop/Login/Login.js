@@ -1,12 +1,20 @@
-import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import AuthContext from "../../../Store/Auth/Auth.context";
+import Card from "../../../UI/Card/Card";
+//import Input from "../../../UI/Input/Input";
 import styles from "./Login.module.css";
 function ValidateEmail(mail) {
   if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail)) {
     return true;
   }
   return false;
+}
+
+function useQuery() {
+  const { search } = useLocation();
+
+  return React.useMemo(() => new URLSearchParams(search), [search]);
 }
 const Login = () => {
   const [formValues, setFormValues] = useState({
@@ -28,13 +36,14 @@ const Login = () => {
   });
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
-  
-  useEffect(()=>{
-    if (authContext.isLoggedIn) {
-        navigate("/products");
-      }
+  const queryParams = useQuery();
+  const redirectURL = queryParams.get("redirect");
 
-  },[navigate,authContext.isLoggedIn])
+  useEffect(() => {
+    if (authContext.isLoggedIn) {
+      navigate("/products");
+    }
+  }, [navigate, authContext.isLoggedIn]);
   const formSubmitHandler = async (e) => {
     setAllFieldValidity();
     e.preventDefault();
@@ -50,7 +59,11 @@ const Login = () => {
           return { ...prevState, error, valid: false, touched: true };
         });
       } else {
-        navigate("/products");
+        if (redirectURL) {
+          navigate(redirectURL);
+        } else {
+          navigate("/products");
+        }
       }
       console.log(loginResponse);
     }
@@ -123,58 +136,63 @@ const Login = () => {
 
   return (
     <section className={styles["login-box"]}>
-      <div className="card">
-        <div className="card-body">
-          <h1 className="text-center">Login</h1>
-          <form
-            onSubmit={formSubmitHandler}
-            className="needs-validation"
-            no-validate="false"
-          >
-            {formValues.touched && !formValues.valid && (
-              <div>{formValues.error}</div>
-            )}
+      <Card>
+        <h1 className="text-center">Login</h1>
+        <form
+          onSubmit={formSubmitHandler}
+          className="needs-validation"
+          no-validate="false"
+        >
+          {formValues.touched && !formValues.valid && (
+            <div>{formValues.error}</div>
+          )}
 
-            <div className="form-group mb-3">
-              <label htmlFor="exampleInputEmail1" className="form-label">
-                Email address
-              </label>
-              <input
-                type="text"
-                className={`form-control ${getInputClass("email")}`}
-                id="exampleInputEmail1"
-                name="email"
-                aria-describedby="emailHelp"
-                onChange={inputChangeHandler}
-              />
-              {formValues.email.touched && !formValues.email.valid && (
-                <div className="invalid-feedback">{formValues.email.error}</div>
-              )}
-            </div>
-            <div className="form-group mb-3">
-              <label htmlFor="exampleInputPassword1" className="form-label">
-                Password
-              </label>
-              <input
-                type="password"
-                className={`form-control  ${getInputClass("password")}`}
-                id="exampleInputPassword1"
-                autoComplete="false"
-                name="password"
-                onChange={inputChangeHandler}
-              />
-              {formValues.password.touched && !formValues.password.valid && (
-                <div className="invalid-feedback">
-                  {formValues.password.error}
-                </div>
-              )}
-            </div>
-            <button type="submit" className="btn btn-primary">
-              Login
-            </button>
-          </form>
-        </div>
-      </div>
+          {/* <Input label="Email" type="text"
+              className={`form-control ${getInputClass("email")}`}
+              id="exampleInputEmail1"
+              name="email"
+              onChange={inputChangeHandler} /> */}
+
+          <div className="form-group mb-3">
+            <label htmlFor="exampleInputEmail1" className="form-label">
+              Email address
+            </label>
+            <input
+              type="text"
+              className={`form-control ${getInputClass("email")}`}
+              id="exampleInputEmail1"
+              name="email"
+              aria-describedby="emailHelp"
+              onChange={inputChangeHandler}
+            />
+            {formValues.email.touched && !formValues.email.valid && (
+              <div className="invalid-feedback">{formValues.email.error}</div>
+            )}
+          </div>
+          <div className="form-group mb-3">
+            <label htmlFor="exampleInputPassword1" className="form-label">
+              Password
+            </label>
+            <input
+              type="password"
+              className={`form-control  ${getInputClass("password")}`}
+              id="exampleInputPassword1"
+              autoComplete="false"
+              name="password"
+              onChange={inputChangeHandler}
+            />
+            {formValues.password.touched && !formValues.password.valid && (
+              <div className="invalid-feedback">
+                {formValues.password.error}
+              </div>
+            )}
+          </div>
+          <button type="submit" className="btn btn-primary">
+            Login
+          </button>
+        </form>
+      </Card>
+     
     </section>
   );
 };

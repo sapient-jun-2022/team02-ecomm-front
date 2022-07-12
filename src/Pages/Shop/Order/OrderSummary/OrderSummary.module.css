@@ -1,0 +1,22 @@
+.summary-section{
+    font-size: 15px;
+  
+}
+
+.summary-section:last-child{
+    border-bottom-style: solid !important;
+   
+   
+}
+
+.item-heading{
+    font-weight: bold;
+}
+
+.item-image{
+    width:100px;
+}
+
+.item-price-summary{
+    font-size: 13px;
+}

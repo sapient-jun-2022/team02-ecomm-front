@@ -1,0 +1,9 @@
+.product-image{
+    max-width: 150px;
+    object-fit: center;
+}
+
+
+.card-delete{
+    justify-self: flex-end;
+}
