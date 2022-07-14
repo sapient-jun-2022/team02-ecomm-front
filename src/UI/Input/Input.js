@@ -1,18 +1,35 @@
-import { useState } from "react";
 
 const Input = (props) => {
-    const [error,setError] = useState('');
+  const {label, isValid, isTouched,errorMessage,className:inputClassName,...inputProps} = props;
+  //console.log(label);
+  const getErrorClass = () =>{
+    if (isTouched) {
+      if (isValid) {
+        return "is-valid";
+      } else {
+        return "is-invalid";
+      }
+    } else {
+      return "";
+    } 
+    
+  }
+   
     
   return (
-    <div className="form-group mb-3">
+    <div className={`form-group mb-3`}>
       <label htmlFor={props.id} className="form-label">
         {props.label}
       </label>
       <input
-        {...props}
+        {...inputProps}
+
+        className={`${inputClassName} ${getErrorClass()}`}
+
+       
        
       />
-       <div className="invalid-feedback">Error message </div>
+       <div className="invalid-feedback">{errorMessage} </div>
     </div>
   );
 };
